@@ -264,11 +264,8 @@ files:
       }).timeout(30000);
     learner_created: false
 feedback_link: https://hyperskill.org/projects/444/stages/2582/implement#comment
-status: Failed
+status: Solved
 feedback:
-  message: |-
-    Error: Wrong answer in test #2
-
-    The element with the selector of "header" is missing in the body of the HTML document.
-  time: "Sat, 02 Mar 2024 12:45:22 UTC"
+  message: Congratulations!
+  time: "Sat, 02 Mar 2024 13:38:38 UTC"
 record: -1
