@@ -39,6 +39,8 @@ async function stageTest() {
                 const element = document.body.querySelector(id);
                 if (!element || !element.innerText) return true;
 
+                // console.log(element.innerText, correctText)
+
                 if (correctText) {
                     return !element.innerText.includes(correctText);
                 }
@@ -62,15 +64,14 @@ async function stageTest() {
             }
 
             // method to check flat list items
-            this.checkFlatListItems = () => {
-                const flats = this.flats;
-
+            this.checkFlatListItems = (flats) => {
                 for (let i = 1; i <= flats.length; i++) {
                     const flat = flats[i - 1];
+
                     const flatListItem = `main ul > li:nth-child(${i})`
 
                     // check if li has key attribute as id
-                    //if (this.elementHasAttribute(flatListItem, "key", flat.id.toString())) return this.missingAttributeMsg(flatListItem, "key");
+                    // if (this.elementHasAttribute(flatListItem, "key", flat.id.toString())) return this.missingAttributeMsg(flatListItem, "key");
 
                     // check h3 flat name
                     const h3 = flatListItem + " > h3";
@@ -106,8 +107,6 @@ async function stageTest() {
 
             // method to check form elements
             this.checkFormElements = () => {
-                const form = document.body.querySelector("form");
-
                 // check label for name
                 const labelName = "form > label:nth-of-type(1)";
                 if (this.elementExists(labelName)) return this.missingElementMsg(labelName);
@@ -171,6 +170,64 @@ async function stageTest() {
                 return false;
             }
 
+            this.setNativeValue = (element, value, checked=false) => {
+                const valueSetter = Object.getOwnPropertyDescriptor(element, checked ? 'checked': 'value').set;
+                const prototype = Object.getPrototypeOf(element);
+                const prototypeValueSetter = Object.getOwnPropertyDescriptor(prototype, checked ? 'checked': 'value').set;
+
+                if (valueSetter && valueSetter !== prototypeValueSetter) {
+                    prototypeValueSetter.call(element, value);
+                } else {
+                    valueSetter.call(element, value);
+                }
+            }
+
+            // method to fire events
+            this.fireEvent = (element, event) => {
+                element.dispatchEvent(new Event(event, { bubbles: true }));
+            }
+
+            // method to fill the form
+            this.fillForm = (flat) => {
+                const form = document.body.querySelector("form");
+                const name = form.querySelector("input[name='name']");
+                const location = form.querySelector("input[name='location']");
+                const price = form.querySelector("input[name='price']");
+                const image = form.querySelector("input[name='image']");
+                const available = form.querySelector("input[name='available']");
+
+                this.setNativeValue(name, flat.name);
+                this.fireEvent(name, "input")
+
+                this.setNativeValue(location, flat.location);
+                this.fireEvent(location, "input")
+
+                this.setNativeValue(price, flat.price);
+                this.fireEvent(price, "input")
+
+                this.setNativeValue(image, flat.image)
+                this.fireEvent(image, "input")
+
+                this.setNativeValue(available, flat.available, true)
+                this.fireEvent(available, "click")
+            }
+
+            // method to submit form
+            this.submitForm = () => {
+                const form = document.body.querySelector("form");
+                const available = form.querySelector("input[name='available']");
+                form.querySelector("button").click()
+            }
+
+            // method to add flat button click
+            this.addFlatButtonClick = () => {
+                // check if form doesn't exist before button click
+                if (!this.elementExists("form"))
+                    return hs.wrong("The form should not exist before the button is clicked.");
+
+                const button = document.body.querySelector("button");
+                button.click();
+            }
 
             // CONSTANTS-->
             const theElement = "The element with the selector of";
@@ -200,8 +257,34 @@ async function stageTest() {
                     available: true,
                     image: 'https://example.com/charming-studio.jpg',
                 },
-                // Add more flats as needed
             ];
+
+            this.newFlats = [
+                {
+                    id: 4,
+                    name: 'New Apartment',
+                    location: 'Downtown',
+                    price: '$1500/month',
+                    available: true,
+                    image: 'https://example.com/new-apartment.jpg',
+                },
+                {
+                    id: 5,
+                    name: 'New Loft',
+                    location: 'Midtown',
+                    price: '$1800/month',
+                    available: false,
+                    image: 'https://example.com/new-loft.jpg',
+                },
+                {
+                    id: 6,
+                    name: 'New Studio',
+                    location: 'Uptown',
+                    price: '$1200/month',
+                    available: true,
+                    image: 'https://example.com/new-studio.jpg',
+                },
+            ]
             // <--CONSTANTS
 
             // MESSAGES-->
@@ -272,7 +355,7 @@ async function stageTest() {
             if (this.elementExistsInAmount(ul + " > li", 3)) return hs.wrong(this.wrongAmountOfElementsMsg(ul + " > li", 3));
 
             // check if li has h3, p, p, p and img
-            const checkResult = this.checkFlatListItems();
+            const checkResult = this.checkFlatListItems(this.flats);
             if (checkResult) return hs.wrong(checkResult);
 
             return hs.correct();
@@ -291,11 +374,8 @@ async function stageTest() {
             // test #6
             // ADD FLAT BUTTON CLICK
 
-            // check if form doesn't exist before button click
-            if (!this.elementExists("form")) return hs.wrong("The form should not exist before the button is clicked.");
-
-            const button = document.body.querySelector("button");
-            button.click();
+            const buttonClick = this.addFlatButtonClick();
+            if (buttonClick) return hs.wrong(buttonClick);
 
             // H2 TAG
             // check if h2 exists in main
@@ -312,6 +392,63 @@ async function stageTest() {
             // check form elements
             const checkResult = this.checkFormElements();
             if (checkResult) return hs.wrong(checkResult);
+
+            return hs.correct();
+        }, async () => {
+            // test #7
+            // FORM SUBMIT
+
+            this.fillForm(this.newFlats[0]);
+
+            await new Promise((resolve => {
+                setTimeout(() => {
+                    resolve();
+                }, 2000)
+            }));
+
+            // submit form
+            this.submitForm();
+
+            await new Promise((resolve => {
+                setTimeout(() => {
+                    resolve();
+                }, 2000)
+            }));
+
+            const checkResult = this.checkFlatListItems([...this.flats, this.newFlats[0]]);
+            if (checkResult) return hs.wrong(checkResult);
+
+            return hs.correct();
+        }, async () => {
+            // test #8
+            // FORM SUBMIT REST
+
+            for (let i = 1; i < this.newFlats.length; i++) {
+
+                const buttonClick = this.addFlatButtonClick();
+                if (buttonClick) return hs.wrong(buttonClick);
+
+                // fill form
+                this.fillForm(this.newFlats[i]);
+
+                await new Promise((resolve => {
+                    setTimeout(() => {
+                        resolve();
+                    }, 2000)
+                }));
+
+                // submit form
+                this.submitForm();
+
+                await new Promise((resolve => {
+                    setTimeout(() => {
+                        resolve();
+                    }, 2000)
+                }));
+
+                const checkResult = this.checkFlatListItems([...this.flats, this.newFlats[0]]);
+                if (checkResult) return hs.wrong(checkResult);
+            }
 
             return hs.correct();
         }
