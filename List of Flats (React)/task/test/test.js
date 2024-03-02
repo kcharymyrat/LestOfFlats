@@ -104,6 +104,73 @@ async function stageTest() {
                 return false;
             }
 
+            // method to check form elements
+            this.checkFormElements = () => {
+                const form = document.body.querySelector("form");
+
+                // check label for name
+                const labelName = "form > label:nth-of-type(1)";
+                if (this.elementExists(labelName)) return this.missingElementMsg(labelName);
+                if (this.elementHasText(labelName, "Name:")) return this.wrongTextMsg(labelName, "Name:");
+
+                // check input for name
+                const inputName = "form > input:nth-of-type(1)";
+                if (this.elementExists(inputName)) return this.missingElementMsg(inputName);
+                if (this.elementHasAttribute(inputName, "type", "text")) return this.wrongAttributeMsg(inputName, "type", "text");
+                if (this.elementHasAttribute(inputName, "name", "name")) return this.wrongAttributeMsg(inputName, "name", "name");
+
+                // check label for location
+                const labelLocation = "form > label:nth-of-type(2)";
+                if (this.elementExists(labelLocation)) return this.missingElementMsg(labelLocation);
+                if (this.elementHasText(labelLocation, "Location:")) return this.wrongTextMsg(labelLocation, "Location:");
+
+                // check input for location
+                const inputLocation = "form > input:nth-of-type(2)";
+                if (this.elementExists(inputLocation)) return this.missingElementMsg(inputLocation);
+                if (this.elementHasAttribute(inputLocation, "type", "text")) return this.wrongAttributeMsg(inputLocation, "type", "text");
+                if (this.elementHasAttribute(inputLocation, "name", "location")) return this.wrongAttributeMsg(inputLocation, "name", "location");
+
+                // check label for price
+                const labelPrice = "form > label:nth-of-type(3)";
+                if (this.elementExists(labelPrice)) return this.missingElementMsg(labelPrice);
+                if (this.elementHasText(labelPrice, "Price:")) return this.wrongTextMsg(labelPrice, "Price:");
+
+                // check input for price
+                const inputPrice = "form > input:nth-of-type(3)";
+                if (this.elementExists(inputPrice)) return this.missingElementMsg(inputPrice);
+                if (this.elementHasAttribute(inputPrice, "type", "text")) return this.wrongAttributeMsg(inputPrice, "type", "text");
+                if (this.elementHasAttribute(inputPrice, "name", "price")) return this.wrongAttributeMsg(inputPrice, "name", "price");
+
+                // check label for image
+                const labelImage = "form > label:nth-of-type(4)";
+                if (this.elementExists(labelImage)) return this.missingElementMsg(labelImage);
+                if (this.elementHasText(labelImage, "Image URL:")) return this.wrongTextMsg(labelImage, "Image URL:");
+
+                // check input for image
+                const inputImage = "form > input:nth-of-type(4)";
+                if (this.elementExists(inputImage)) return this.missingElementMsg(inputImage);
+                if (this.elementHasAttribute(inputImage, "type", "text")) return this.wrongAttributeMsg(inputImage, "type", "text");
+                if (this.elementHasAttribute(inputImage, "name", "image")) return this.wrongAttributeMsg(inputImage, "name", "image");
+
+                // check label for availability
+                const labelAvailability = "form > label:nth-of-type(5)";
+                if (this.elementExists(labelAvailability)) return this.missingElementMsg(labelAvailability);
+                if (this.elementHasText(labelAvailability, "Availability:")) return this.wrongTextMsg(labelAvailability, "Availability:");
+
+                // check input for availability
+                const inputAvailability = "form > input:nth-of-type(5)";
+                if (this.elementExists(inputAvailability)) return this.missingElementMsg(inputAvailability);
+                if (this.elementHasAttribute(inputAvailability, "type", "checkbox")) return this.wrongAttributeMsg(inputAvailability, "type", "checkbox");
+                if (this.elementHasAttribute(inputAvailability, "name", "available")) return this.wrongAttributeMsg(inputAvailability, "name", "available");
+
+                // check button
+                const button = "form > button";
+                if (this.elementExists(button)) return this.missingElementMsg(button);
+                if (this.elementHasText(button, "Add Flat")) return this.wrongTextMsg(button, "Add Flat");
+
+                return false;
+            }
+
 
             // CONSTANTS-->
             const theElement = "The element with the selector of";
@@ -209,7 +276,44 @@ async function stageTest() {
             if (checkResult) return hs.wrong(checkResult);
 
             return hs.correct();
+        }, () => {
+            // test #5
+            // ADD FLAT BUTTON
 
+            // check if button exists
+            if (this.elementExists("button")) return hs.wrong(this.missingElementMsg("button"));
+
+            // check if button has text "Add Flat"
+            if (this.elementHasText("button", "Add Flat")) return hs.wrong(this.wrongTextMsg("button", "Add Flat"));
+
+            return hs.correct();
+        }, () => {
+            // test #6
+            // ADD FLAT BUTTON CLICK
+
+            // check if form doesn't exist before button click
+            if (!this.elementExists("form")) return hs.wrong("The form should not exist before the button is clicked.");
+
+            const button = document.body.querySelector("button");
+            button.click();
+
+            // H2 TAG
+            // check if h2 exists in main
+            const h2 = "main h2";
+            if (this.elementExists(h2)) return hs.wrong(this.missingElementMsg(h2));
+
+            // check if h2 has text "Add New Flat"
+            if (this.elementHasText(h2, "Add New Flat")) return hs.wrong(this.wrongTextMsg(h2, "Add New Flat"));
+
+            // FORM TAGS
+            // check if form exists
+            if (this.elementExists("form")) return hs.wrong(this.missingElementMsg("form"));
+
+            // check form elements
+            const checkResult = this.checkFormElements();
+            if (checkResult) return hs.wrong(checkResult);
+
+            return hs.correct();
         }
 
     );
